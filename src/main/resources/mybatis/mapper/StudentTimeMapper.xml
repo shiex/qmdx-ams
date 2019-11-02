@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qmdx.ams.mapper.StudentTimeMapper">
+
+    <resultMap id="BaseResultMap" type="com.qmdx.ams.entity.StudentTime">
+        <id column="id" property="id" />
+        <result column="student_id" property="studentId" />
+        <result column="free_time" property="freeTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t1.id,
+        t1.student_id,
+        t1.free_time
+    </sql>
+
+    <resultMap id="StudentTimeResultMap" extends="BaseResultMap" type="com.qmdx.ams.entity.StudentTime">
+        <association property="student" javaType="com.qmdx.ams.entity.Student">
+            <id column="student_id" property="studentId" />
+            <result column="student_name" property="studentName" />
+        </association>
+    </resultMap>
+
+    <select id="selectAllByStudentId" resultMap="BaseResultMap">
+        SELECT t2.`free_time`
+        FROM `student` t1
+        LEFT JOIN `student_time` t2 ON t1.student_id = t2.student_id
+        WHERE t1.`student_id` = #{studentId}
+    </select>
+
+    <select id="selectCountByStudentId" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM `student_time`
+        WHERE student_id = #{userId}
+    </select>
+
+    <select id="selectCountByStudentIdAndTime" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM `student_time`
+        WHERE student_id = #{studentId} AND free_time = #{freeTime}
+    </select>
+</mapper>

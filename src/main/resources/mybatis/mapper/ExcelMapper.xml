@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qmdx.ams.mapper.ExcelMapper">
+
+    <select id="selectPageHelperStudentList" resultType="com.qmdx.ams.excel.ExcelStudentAdvisor">
+        SELECT
+        t3.`student_id`,t3.`student_name`,t3.`student_email`,
+        t2.`advisor_id` AS general_advisor_id, t2.`advisor_name` AS general_advisor_name, t2.`advisor_email` AS general_advisor_email,
+        t2.`advisor_id` AS project_advisor_id, t5.`advisor_name` AS project_advisor_name, t5.`advisor_email` AS project_advisor_email
+        FROM `student_general_advisor` t1
+        LEFT JOIN `advisor` t2 ON t1.`general_advisor_id` = t2.`advisor_id`
+        LEFT JOIN `student` t3 ON t1.`student_id` = t3.`student_id`
+        LEFT JOIN `student_project_advisor` t4 ON t4.`student_id` = t3.`student_id`
+        LEFT JOIN `advisor` t5 ON t5.`advisor_id` = t4.`project_advisor_id`
+        ORDER BY t3.`student_id` DESC
+        LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectPageHelperCompanyList" resultType="com.qmdx.ams.excel.ExcelCompanyPosition">
+        SELECT
+        t1.company_id,t1.company_name,t1.type_of_business,t1.tel,t1.location,t1.email,
+        t3.position_id, t3.position_name, t3.num_of_position
+        FROM `company` t1
+        LEFT JOIN `company_position` t2 ON t1.`company_id` = t2.`company_id`
+        LEFT JOIN `position` t3 ON t2.`position_id` = t3.`position_id`
+        ORDER BY t1.`company_id` DESC
+        LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectCountStudentAdvisor" resultType="java.lang.Integer">
+        SELECT
+	    COUNT(*)
+        FROM `student_general_advisor` t1
+        LEFT JOIN `advisor` t2 ON t1.`general_advisor_id` = t2.`advisor_id`
+        LEFT JOIN `student` t3 ON t1.`student_id` = t3.`student_id`
+        LEFT JOIN `student_project_advisor` t4 ON t4.`student_id` = t3.`student_id`
+        LEFT JOIN `advisor` t5 ON t5.`advisor_id` = t4.`project_advisor_id`
+    </select>
+
+    <select id="selectCountCompanyPosition" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `company` t1
+        LEFT JOIN `company_position` t2 ON t1.`company_id` = t2.`company_id`
+        LEFT JOIN `position` t3 ON t2.`position_id` = t3.`position_id`
+    </select>
+
+</mapper>

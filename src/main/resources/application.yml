@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    username: root
+    password: xh123
+    url: jdbc:mysql://localhost:3306/qmdx_ams?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 5
+    minIdle: 5
+    maxActive: 40
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+
+  freemarker:
+    classpath: /templates/
+    charset: utf-8
+    spring.freemarker.cache: false
+    expose-request-attributes: true
+    expose-session-attributes: true
+    expose-spring-macro-helpers: true
+    suffix: .ftl
+
+  mail:
+    host: smtp.qq.com
+    from: 136290357@qq.com
+    username: 136290357@qq.com
+    password: sdzamhcrciahbjdg
+    protocol: smtp
+    properties.mail.smtp.auth: true
+    properties.mail.smtp.port: 465
+    properties.mail.display.sendmail: Javen
+    properties.mail.display.sendname: Spring Boot Guide Email
+    properties.mail.smtp.starttls.enable: true
+    properties.mail.smtp.starttls.required: true
+    properties.mail.smtp.ssl.enable: true
+    default-encoding: utf-8
+
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+
+debug:
+  true
+
+logging:
+  level:
+    com.qmdx.ams.mapper : debug
+
+

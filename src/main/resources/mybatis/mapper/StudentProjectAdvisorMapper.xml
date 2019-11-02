@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qmdx.ams.mapper.StudentProjectAdvisorMapper">
+
+    <resultMap id="BaseResultMap" type="com.qmdx.ams.entity.StudentProjectAdvisor">
+        <id column="id" property="id" />
+        <result column="student_id" property="studentId" />
+        <result column="project_advisor_id" property="projectAdvisorId" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, student_id, project_advisor_id
+    </sql>
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qmdx.ams.mapper.CompanyMapper">
+
+    <resultMap id="BaseResultMap" type="com.qmdx.ams.entity.Company">
+        <id column="company_id" property="companyId" />
+        <result column="company_name" property="companyName" />
+        <result column="type_of_business" property="typeOfBusiness" />
+        <result column="tel" property="tel" />
+        <result column="location" property="location" />
+        <result column="email" property="email" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t1.company_id,
+        t1.company_name,
+        t1.type_of_business,
+        t1.tel,
+        t1.location,
+        t1.email
+    </sql>
+
+    <resultMap id="CompanyPositionResultMap" extends="BaseResultMap" type="com.qmdx.ams.entity.Company">
+        <collection property="positionList" ofType="com.qmdx.ams.entity.Position">
+            <id column="position_id" property="positionId" />
+            <result column="position_name" property="positionName" />
+            <result column="num_of_position" property="numOfPosition" />
+            <result column="application_count" property="applicationCount" />
+        </collection>
+    </resultMap>
+
+    <select id="selectDropDownList" resultMap="CompanyPositionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        t3.position_name
+        FROM `company` t1
+        LEFT JOIN `company_position` t2 ON t1.`company_id` = t2.`company_id`
+        LEFT JOIN `position` t3 ON t2.`position_id` = t3.`position_id`
+        WHERE t1.`company_id` > #{companyId}
+        <if test="companyName != null">
+            AND t1.`company_name` LIKE CONCAT(CONCAT('%',#{companyName}),'%')
+        </if>
+        ORDER BY t1.`company_id` ASC
+        LIMIT 30
+    </select>
+
+    <select id="selectCompanyPosition" resultMap="CompanyPositionResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        t3.position_id, t3.position_name, t3.num_of_position, t3.application_count
+        FROM `company` t1
+        LEFT JOIN `company_position` t2 ON t1.`company_id` = t2.`company_id`
+        LEFT JOIN `position` t3 ON t2.`position_id` = t3.`position_id`
+        WHERE t1.`company_id` = #{companyId}
+    </select>
+
+    <select id="selectCompanyEmaliOne" resultType="java.lang.String">
+        SELECT `email` FROM `company` WHERE company_id = #{companyId}
+    </select>
+</mapper>

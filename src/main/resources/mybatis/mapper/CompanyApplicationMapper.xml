@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qmdx.ams.mapper.CompanyApplicationMapper">
+
+    <resultMap id="BaseResultMap" type="com.qmdx.ams.entity.CompanyApplication">
+        <id column="company_application_id" property="companyApplicationId" />
+        <result column="company_id" property="companyId" />
+        <result column="position_id" property="positionId" />
+        <result column="student_id" property="studentId" />
+        <result column="academic_year" property="academicYear" />
+        <result column="cooperation_plan" property="cooperationPlan" />
+        <result column="interview_time" property="interviewTime" />
+        <result column="interview_location" property="interviewLocation" />
+        <result column="application_status" property="applicationStatus" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t1.company_application_id,
+        t1.company_id,
+        t1.position_id,
+        t1.student_id,
+        t1.academic_year,
+        t1.cooperation_plan,
+        t1.interview_time,
+        t1.interview_location,
+        t1.application_status
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Company_Column_List">
+        t2.company_id,
+        t2.company_name,
+        t2.type_of_business,
+        t2.tel,
+        t2.location,
+        t2.email
+    </sql>
+
+    <resultMap id="CompanyApplicationResultMap" extends="BaseResultMap" type="com.qmdx.ams.entity.CompanyApplication">
+        <association property="company" javaType="com.qmdx.ams.entity.Company">
+            <result column="company_name" property="companyName" />
+            <result column="type_of_business" property="typeOfBusiness" />
+            <result column="tel" property="tel" />
+            <result column="location" property="location" />
+            <result column="email" property="email" />
+        </association>
+        <association property="position" javaType="com.qmdx.ams.entity.Position">
+            <result column="position_name" property="positionName" />
+            <result column="num_of_position" property="numOfPosition" />
+        </association>
+        <association property="student" javaType="com.qmdx.ams.entity.Student">
+            <result column="student_name" property="studentName" />
+            <result column="student_email" property="studentEmail" />
+        </association>
+        <!--<association property="freeTime" javaType="com.qmdx.ams.entity.FreeTime">
+            <result column="start_date" property="startDate" />
+            <result column="end_date" property="endDate" />
+            <result column="start_time" property="startTime" />
+            <result column="end_time" property="endTime" />
+        </association>-->
+    </resultMap>
+
+    <select id="selectPageHelperList" resultMap="CompanyApplicationResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        <include refid="Company_Column_List"/>,
+        t4.position_id, t4.position_name, t4.num_of_position,
+        t5.`student_id`, t5.`student_name`
+        FROM `company_application` t1
+        LEFT JOIN `company` t2 ON t1.`company_id` = t2.`company_id`
+        LEFT JOIN `company_position` t3 ON t2.`company_id` = t3.`company_id`
+        LEFT JOIN `position` t4 ON t3.`position_id` = t4.`position_id`
+        LEFT JOIN `student` t5 ON t1.`student_id` = t5.`student_id`
+        <where>
+            <if test="applicationStatus != null">
+                t1.application_status = #{applicationStatus}
+            </if>
+            <if test="applicationStatus == 2">
+                OR t1.application_status = 4
+            </if>
+            <if test="queryType == 'studentId'">
+                AND t1.student_id LIKE CONCAT(CONCAT('%',#{queryCondition}),'%')
+            </if>
+            <if test="queryType == 'studentName'">
+                AND t5.student_name LIKE CONCAT(CONCAT('%',#{queryCondition}),'%')
+            </if>
+            <if test="queryType == 'companyName'">
+                AND t2.company_name LIKE CONCAT(CONCAT('%',#{queryCondition}),'%')
+            </if>
+            <if test="queryType == 'positionName'">
+                AND t4.position_name LIKE CONCAT(CONCAT('%',#{queryCondition}),'%')
+            </if>
+            <if test="queryType == 'student'">
+                AND t5.student_id = #{queryCondition}
+            </if>
+            <if test="queryType == 'company'">
+                AND t2.company_id = #{queryCondition}
+            </if>
+        </where>
+        ORDER BY t1.company_application_id DESC
+        LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectOneJoin" resultMap="CompanyApplicationResultMap">
+        SELECT
+        t1.company_application_id,t1.interview_time,t1.company_id,t2.company_name,t2.email,
+        t4.position_name,t5.student_name,t5.student_email
+        FROM `company_application` t1
+        LEFT JOIN `company` t2 ON t1.`company_id` = t2.`company_id`
+        LEFT JOIN `company_position` t3 ON t2.`company_id` = t3.`company_id`
+        LEFT JOIN `position` t4 ON t3.`position_id` = t4.`position_id`
+        LEFT JOIN `student` t5 ON t1.`student_id` = t5.`student_id`
+        WHERE t1.company_application_id = #{companyApplicationId}
+    </select>
+
+    <select id="selectApplicationStatus" resultType="java.lang.Integer">
+        SELECT `application_status` FROM `company_application`
+        WHERE company_application_id = #{companyApplicationId}
+    </select>
+
+    <select id="selectStudentEmail" resultType="java.lang.String">
+        SELECT t2.`email`
+        FROM `company_application` t1
+        LEFT JOIN `student` t2 ON t1.`student_id` = t2.`student_id`
+        WHERE t1.`company_application_id` = #{companyApplicationId}
+    </select>
+
+    <select id="selectIsExistInterviewTime" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `company_application` t1
+        WHERE t1.`company_id` = #{companyId}
+        AND t1.`interview_time` = #{interviewTime}
+    </select>
+
+    <update id="updateStatusById">
+        UPDATE `company_application`
+        SET application_status = #{applicationStatus}, interview_time = null
+        WHERE company_application_id = #{companyApplicationId}
+    </update>
+
+    <update id="updateInterviewTimeById">
+        UPDATE
+        `company_application`
+        SET
+        application_status = #{applicationStatus},
+        interview_time = #{interviewTime},
+        interview_location = #{interviewLocation}
+        WHERE company_application_id = #{companyApplicationId}
+    </update>
+</mapper>
